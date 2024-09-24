@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ethereum Dashboard</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Ethereum Dashboard</h1>
+
+    <div class="container">
+        <div class="charts">
+            <h2>Transaction volume overtime</h2>
+            <canvas id="lineChart"></canvas>
+        </div>
+        <div class="charts">
+            <h2>Transaction Distribution by Address</h2>
+            <canvas id="pieChart"></canvas>
+        </div>
+        <div class="charts">
+            <h2>Transactions per Block</h2>
+            <canvas id="barChart"></canvas>
+        </div>
+    </div>
+
+    <div class="transaction-list">
+        <h2>Latest Transactions</h2>
+        <table id="transactionTable">
+            <thead>
+                <tr>
+                    <th>Hash</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Value (Wei)</th>
+                    <th>Block Number</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Transactions will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="/static/js/dashboard.js">
+        async function loadTransactions() {
+    try {
+        const response = await fetch('http://localhost:3000/get-latest-transactions');
+        const transactions = await response.json();
+
+        const transactionList = document.getElementById('transactionList');
+        transactionList.innerHTML = '';
+
+        if (transactions.length === 0) {
+            transactionList.innerHTML = 'No tracked transactions yet.';
+            return;
+        }
+
+        transactions.forEach(tx => {
+            const txElement = document.createElement('div');
+            txElement.innerHTML = `
+                <p><strong>Transaction Hash:</strong> ${tx.hash}</p>
+                <p><strong>From:</strong> ${tx.from}</p>
+                <p><strong>To:</strong> ${tx.to}</p>
+                <p><strong>Value (in Wei):</strong> ${tx.value}</p>
+                <p><strong>Block Number:</strong> ${tx.blockNumber}</p>
+                <hr>
+            `;
+            transactionList.appendChild(txElement);
+        });
+    } catch (error) {
+        console.error('Error fetching transactions:', error);
+    }
+}
+
+loadTransactions();
+    </script>
+</body>
+</html>
